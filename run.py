@@ -14,6 +14,15 @@ client.login(creds[0].strip(), creds[1].strip())
 messages = {}
 
 def process_message(message):
+    if message.server.id != '113745426082955273':
+        return
+
+    if not hasattr(message.author, 'roles') or len(message.author.roles) <= 1:
+        return
+
+    if not 'Admin' in [role.name for role in message.author.roles]:
+        return
+
     for user in message.mentions:
         message.content = message.content.replace('<@' + user.id + '>', '@' + user.name)
     for channel in message.channel_mentions:
@@ -38,19 +47,11 @@ def on_message_edit(message, m2):
 
 @client.event
 def on_message_delete(message):
-    del messages[message.id]
+    if message.id in messages:
+        del messages[message.id]
 
 @client.event
 def on_message(message):
-    if message.server.id != '113745426082955273':
-        return
-
-    if not hasattr(message.author, 'roles') or len(message.author.roles) <= 1:
-        return
-
-    if not 'Admin' in [role.name for role in message.author.roles]:
-        return
-
     process_message(message)
 
 @client.event
