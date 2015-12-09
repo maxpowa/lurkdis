@@ -25,17 +25,34 @@
 - Media Queries
 */
 
+*:target {
+   background-color: rgba(192,192,192,0.3);
+}
+
+.sender {
+  color: wheat;
+}
+
 .post {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  padding: 0.75em;
+}
+
+.post.announcement {
+   background-color: rgba(0,192,0,0.3);
+}
+
+.post-body {
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  margin-bottom: 0px;
 }
 
 .avatar {
-  margin: 5px;
-  width: 40px;
-  height: 40px;
-  background-size: 40px;
-  border-radius: 20px;
+  margin: 0.25em;
+  width: 2.5em;
+  height: 2.5em;
+  background-size: 2.5em;
+  border-radius: 1.25em;
   background-clip: padding-box;
 }
 

@@ -11,9 +11,14 @@ with open('./credentials') as f:
 
 client.login(creds[0].strip(), creds[1].strip())
 
+channels_to_monitor = ['announcements', 'general-sc-chat', 'sc-alpha-2-0']
+
 messages = {}
+announcement = False
 
 def process_message(message):
+    global announcement
+
     if message.server.id != '113745426082955273':
         return
 
@@ -39,7 +44,10 @@ def process_message(message):
         'avatar': avatar
     }
 
-    print('[' + '+'.join([role.name for role in message.author.roles]) + '] ' + message.author.name + ': ' + message.content)
+    if message.channel.name == "announcements" and (not announcement or messages[announcement]['time'] < message.timestamp):
+        announcement = message.id
+
+    print('[' + '+'.join([role.name for role in message.author.roles]) + '] #' + message.channel.name + ' ' + message.author.name + ': ' + message.content)
 
 @client.event
 def on_message_edit(message, m2):
@@ -61,16 +69,22 @@ def on_ready():
             return
 
         for channel in server.channels:
-            if channel.type == 'voice':
-                return
             print(channel.name)
+
+        for channel in server.channels:
+            if not channel.name in channels_to_monitor:
+                continue
+            print('Fetching #' + channel.name)
             for message in client.logs_from(channel, 10000):
                 on_message(message)
 
 @bottle.route('/')
 @bottle.view('template/main')
 def main_page():
-    return dict(messages=sorted(messages.values(), key=lambda x: x['time'], reverse=True))
+    tmp = None
+    if announcement:
+        tmp = messages[announcement]
+    return dict(messages=sorted(messages.values(), key=lambda x: x['time'], reverse=True), announcement=tmp)
 
 @bottle.route('/static/<filepath:path>')
 def server_static(filepath):
