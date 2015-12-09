@@ -37,6 +37,13 @@
   padding: 0.75em;
 }
 
+/* So when we link to anchors we don't smash the top of the browser */
+.row .post {
+    border-top: 5em solid transparent;
+    margin: -5em;
+    background-clip: padding-box;
+}
+
 .post.announcement {
    background-color: rgba(0,192,0,0.3);
 }
