@@ -44,7 +44,7 @@
             <p class="post-body">
               <b class="sender">{{announcement['sender']}}</b> - <a href="#{{announcement['id']}}">{{announcement['pretty_time']}} UTC</a>
               <br />
-              {{announcement['msg']}}
+              <span class="preformatted">{{announcement['msg']}}</span>
             </p>
           </div>
         % end
