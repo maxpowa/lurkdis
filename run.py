@@ -6,10 +6,10 @@ from os import path
 
 client = discord.Client()
 
-with open('credentials') as f:
+with open('./credentials') as f:
     creds = f.readlines()
 
-client.login(creds[0], creds[1])
+client.login(creds[0].strip(), creds[1].strip())
 
 messages = {}
 
@@ -23,6 +23,7 @@ def process_message(message):
     if avatar == '':
         avatar = 'https://discordapp.com/assets/0d1a93187d96a05e86444f2fc6210d95.png'
     messages[message.id] = {
+        'id': message.id,
         'msg': message.content,
         'sender': message.author.name,
         'time': message.timestamp,

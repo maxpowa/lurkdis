@@ -37,9 +37,10 @@
       <h6>'Cause watching Discord for hours just wasn't good enough</h6>
       <div class="container" style="padding-left: 0px; width:100%">
         % for message in messages:
+          <a name="{{message['id']}}"></a>
           <div class="row post">
             <img class="u-pull-left avatar" style='background-image: url("{{message['avatar']}}")'/>
-            <b>{{message['sender']}}</b> - {{message['time']}}
+            <b>{{message['sender']}}</b> - <a href="#{{message['id']}}">{{message['time']}} UTC</a>
             <br />
             {{message['msg']}}
           </div>
