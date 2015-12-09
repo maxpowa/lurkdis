@@ -37,6 +37,10 @@
   padding: 0.75em;
 }
 
+.preformatted {
+  white-space: pre-wrap;
+}
+
 .clipboard-anchor {
   cursor: pointer;
 }

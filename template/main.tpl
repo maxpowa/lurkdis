@@ -54,7 +54,7 @@
             <p class="post-body">
               <b class="sender">{{message['sender']}}</b> - <a href="#{{message['id']}}">{{message['pretty_time']}} UTC</a>
               <br />
-              {{message['msg']}}
+              <span class="preformatted">{{message['msg']}}</span>
               <a class="clipboard-anchor u-pull-right" data-markdown-text="{{message['markdown']}}">Copy</a>
             </p>
           </div>

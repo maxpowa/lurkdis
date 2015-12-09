@@ -94,7 +94,7 @@ def main_page():
 
 @bottle.route('/static/<filepath:path>')
 def server_static(filepath):
-    return bottle.static_file(filepath, root=path.dirname(path.realpath(__file__)) + '/static')
+    return bottle.static_file(filepath, root=path.dirname(path.realpath('__file__')) + '/static')
 
 def main():
     threading.Thread(target=bottle.run, kwargs=dict(host='localhost', port=8080)).start()
