@@ -41,8 +41,14 @@ def process_message(message):
         'msg': message.content,
         'sender': message.author.name,
         'time': message.timestamp,
+        'pretty_time': message.timestamp.replace(microsecond=0),
         'avatar': avatar
     }
+
+    messages[message.id]['markdown'] = (
+            "*{sender}* - {pretty_time} UTC\n`{msg}`\nhttps://lurkdis.maxpowa.us/#{id}"
+            .format(**messages[message.id])
+        )
 
     if message.channel.name == "announcements" and (not announcement or messages[announcement]['time'] < message.timestamp):
         announcement = message.id
@@ -66,7 +72,7 @@ def on_message(message):
 def on_ready():
     for server in client.servers:
         if server.id != '113745426082955273':
-            return
+            continue
 
         for channel in server.channels:
             print(channel.name)

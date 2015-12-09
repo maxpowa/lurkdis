@@ -37,10 +37,28 @@
   padding: 0.75em;
 }
 
+.clipboard-anchor {
+  cursor: pointer;
+}
+
+.clipboard-anchor:before {
+  content: "Copied! ";
+  opacity: 0;
+
+  -webkit-transition: opacity 0.5s ease-in-out;
+  -moz-transition: opacity 0.5s ease-in-out;
+  -ms-transition: opacity 0.5s ease-in-out;
+  -o-transition: opacity 0.5s ease-in-out;
+}
+
+.copied-to-clipboard:before {
+  opacity: 1;
+}
+
 /* So when we link to anchors we don't smash the top of the browser */
 .row .post {
     border-top: 5em solid transparent;
-    margin: -5em;
+    margin-top: -5em;
     background-clip: padding-box;
 }
 
