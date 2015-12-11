@@ -91,11 +91,15 @@ def on_ready():
             print(channel.name)
 
         for channel in server.channels:
-            if not channel.name in channels_to_monitor:
-                continue
-            print('Fetching #' + channel.name)
-            for message in client.logs_from(channel, 10000):
-                on_message(message)
+            before = None
+            for i in range(100):
+                if not channel.name in channels_to_monitor:
+                    continue
+                print('Fetching #' + channel.name + ' ' + str(i))
+                logs = client.logs_from(channel, 100, before=before)
+                for message in logs:
+                    on_message(message)
+                    before = message
 
 @bottle.route('/')
 @bottle.view('template/main')
