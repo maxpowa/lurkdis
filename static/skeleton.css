@@ -25,41 +25,23 @@
 - Media Queries
 */
 
-.github-ribbon {
-  position: absolute;
-  top: -45px;
-  right: -124px;
-  padding: 1px 0;
-  transform-origin: top left;
-  transform: rotate(45deg);
-  background-color: #444;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, 0.15)));
-  background-image: -webkit-linear-gradient(bottom, rgba(0, 0, 0, 0.25), transparent);
-  background-image: -moz-linear-gradient(bottom, rgba(0, 0, 0, 0.25), transparent);
-  background-image: -o-linear-gradient(bottom, rgba(0, 0, 0, 0.25), transparent);
-  background-image: -ms-linear-gradient(bottom, rgba(0, 0, 0, 0.25), transparent);
-  background-image: linear-gradient(bottom, rgba(0, 0, 0, 0.25), transparent);
-  filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,StartColorStr='#000000', EndColorStr='#000000');
+.sort-of-fancy, .not-very-fancy {
+  max-height: 1080px;
+  opacity: 1;
+  -webkit-transition:opacity, max-height, 0.3s ease-in-out;
+  -moz-transition:opacity, max-height, 0.3s ease-in-out;
+  -ms-transition:opacity, max-height, 0.3s ease-in-out;
+  -o-transition:opacity, max-height, 0.3s ease-in-out;
+  transition:opacity, max-height, 0.3s ease-in-out;
 }
 
-.github-ribbon-link {
-  display: inline-block;
-  width: 250px;
-  color: #fff;
-  font-size: 0.8em;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  letter-spacing: 0.06em;
-  text-shadow: 0 -1px #777;
-  text-decoration: none;
-  text-align: center;
-  line-height: 30px;
-  border-top: 1px dotted #919191;
-  border-bottom: 1px dotted #777777;
+.hidden-gem {
+  max-height: 0;
+  opacity: 0;
 }
-
 
 *:target {
-   background-color: rgba(192,192,192,0.3);
+  background-color: rgba(192,192,192,0.3);
 }
 
 .sender {
@@ -79,17 +61,26 @@
 }
 
 .clipboard-anchor:before {
-  content: "Copied! ";
+  content: "";
+  max-width: 0;
   opacity: 0;
 
-  -webkit-transition: opacity 0.5s ease-in-out;
-  -moz-transition: opacity 0.5s ease-in-out;
-  -ms-transition: opacity 0.5s ease-in-out;
-  -o-transition: opacity 0.5s ease-in-out;
+  -webkit-transition: opacity, max-width, 0.1s ease-in-out;
+  -moz-transition: opacity, max-width, 0.1s ease-in-out;
+  -ms-transition: opacity, max-width, 0.1s ease-in-out;
+  -o-transition: opacity, max-width, 0.1s ease-in-out;
 }
 
 .copied-to-clipboard:before {
+  content: "Copied! ";
   opacity: 1;
+  max-width 10em;
+}
+
+.copied-to-clipboard-fallback:before {
+  content: "CTRL+C to copy. ";
+  opacity: 1;
+  max-width 10em;
 }
 
 /* So when we link to anchors we don't smash the top of the browser */
@@ -97,6 +88,11 @@
     border-top: 5em solid transparent;
     margin-top: -5em;
     background-clip: padding-box;
+}
+
+.primary-body div:first-child {
+  margin-top: 0em;
+  border-top: 0em;
 }
 
 .post.announcement {

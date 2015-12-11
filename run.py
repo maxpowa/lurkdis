@@ -2,6 +2,7 @@
 import discord
 import bottle
 import threading
+import copy
 from os import path
 from werkzeug.contrib.atom import AtomFeed
 
@@ -16,10 +17,12 @@ channels_to_monitor = ['announcements', 'general-sc-chat', 'sc-alpha-2-0']
 
 messages = {}
 announcement = False
+sorted_messages = []
+sorted_messages_copy = []
 last_id = 0
 
 def process_message(message):
-    global announcement, last_id
+    global announcement, last_id, sorted_messages, sorted_messages_copy
 
     if message.server.id != '113745426082955273':
         return
@@ -43,6 +46,7 @@ def process_message(message):
         'msg': message.content,
         'sender': message.author.name,
         'time': message.timestamp,
+        'fancy': 'not-very-fancy',
         'pretty_time': message.timestamp.replace(microsecond=0),
         'avatar': avatar,
         'channel': message.channel.name
@@ -53,7 +57,11 @@ def process_message(message):
             .format(**messages[message.id])
         )
 
-    last_id = message.id
+    sorted_messages = sorted(messages.values(), key=lambda x: x['time'], reverse=True)
+    sorted_messages_copy = copy.deepcopy(sorted_messages)
+
+    if (last_id == 0 or messages[last_id]['time'] < message.timestamp):
+        last_id = message.id
 
     if message.channel.name == "announcements" and (not announcement or messages[announcement]['time'] < message.timestamp):
         announcement = message.id
@@ -95,7 +103,7 @@ def main_page():
     tmp = None
     if announcement:
         tmp = messages[announcement]
-    return dict(messages=sorted(messages.values(), key=lambda x: x['time'], reverse=True), announcement=tmp, last_id=last_id)
+    return dict(messages=sorted_messages, announcement=tmp, last_id=last_id)
 
 @bottle.route('/feed.atom')
 def atom_feed():
@@ -103,7 +111,7 @@ def atom_feed():
     feed = AtomFeed("LurkDis Atom Feed", feed_url=bottle.request.url,
                     url="https://lurkdis.maxpowa.us/",
                     subtitle='Don\'t worry about missing out on CIG updates in Discord!')
-    for message in sorted(messages.values(), key=lambda x: x['time'], reverse=True):
+    for message in sorted_messages:
         feed.add(message['sender'] + ' in #' + message['channel'], message['msg'], content_type='html',
                  author=message['sender'], url="https://lurkdis.maxpowa.us/#" + message['id'],
                  updated=message['pretty_time'])
@@ -111,15 +119,39 @@ def atom_feed():
 
 @bottle.route('/last')
 def get_last_id():
-    bottle.response.content_type = 'text/plain'
-    return last_id
+    return { 'id': last_id }
+
+@bottle.route('/get_since/<id>')
+@bottle.route('/get_since/<id>/<maximum:int>')
+def get_since_id_max(id, maximum=100):
+    maximum = maximum if maximum <= 100 else 100
+    missed_messages = []
+    latest_id = 0
+    if len(sorted_messages_copy) > 0:
+        latest_id = sorted_messages_copy[0]['id']
+
+    for message in sorted_messages_copy:
+        if message['id'] == id:
+            break
+
+        message['pretty_time'] = str(message['pretty_time'])
+        message['time'] = str(message['time'])
+        message['fancy'] = 'sort-of-fancy hidden-gem'
+        message['html'] = bottle.template("% include('template/post', post=post)", post=message)
+
+        missed_messages.insert(0, message)
+        if (len(missed_messages) > maximum):
+            break
+
+    return { 'posts': missed_messages, 'last_id': latest_id }
+
 
 @bottle.route('/static/<filepath:path>')
 def server_static(filepath):
     return bottle.static_file(filepath, root=path.dirname(path.realpath('__file__')) + '/static')
 
 def main():
-    threading.Thread(target=bottle.run, kwargs=dict(host='localhost', port=8080)).start()
+    threading.Thread(target=bottle.run, kwargs=dict(host='0.0.0.0', port=8080)).start()
     client.run()
 
 if __name__ == '__main__':

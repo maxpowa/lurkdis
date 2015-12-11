@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+
+<!--
+Hey you! Yeah you, snoopin' up in this page! Just look at the sourcecode
+instead... https://github.com/maxpowa/lurkdis
+-->
+
 <html lang="en">
 <head>
 
@@ -29,18 +35,15 @@
 
 </head>
 <body style='color: wheat; background-image: url("/static/bg.png");'>
-
-  <div class="github-ribbon"><a class="github-ribbon-link" href="/feed.atom" title="RSS feed">RSS feed</a></div>
-
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <div class="container" style="margin-top: 3em;">
     <div class="row">
       <h4>LurkDis</h4>
-      <h6>'Cause watching Discord for hours just wasn't good enough</h6>
-      <div id="primary-body" class="container" style="padding-left: 0px; width:100%">
+      <h6>'Cause watching Discord for hours just wasn't good enough - <a href="/feed.atom">RSS feed</a></h6>
+      <div id="primary-body" class="container primary-body" style="padding-left: 0px; width:100%">
         % if announcement:
-          <div class="row post announcement">
+          <div id="announcement" class="row post announcement">
             <img class="u-pull-left avatar" style='background-image: url("{{announcement['avatar']}}")'/>
             <p class="post-body">
               <b class="sender">{{announcement['sender']}}</b> - <a href="#{{announcement['id']}}">{{announcement['pretty_time']}} UTC</a>
@@ -50,15 +53,7 @@
           </div>
         % end
         % for message in messages:
-          <div class="row post" id="{{message['id']}}">
-            <img class="u-pull-left avatar" style='background-image: url("{{message['avatar']}}")'/>
-            <p class="post-body">
-              <b class="sender">{{message['sender']}}</b> - <a href="#{{message['id']}}">{{message['pretty_time']}} UTC</a>
-              <br />
-              <span class="preformatted">{{message['msg']}}</span>
-              <a class="clipboard-anchor u-pull-right" data-markdown-text="{{message['markdown']}}">Copy</a>
-            </p>
-          </div>
+          % include('template/post', post=message)
         % end
       </div>
     </div>
@@ -68,8 +63,21 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
   <script>
-    var container = document.getElementById('primary-body');
-    container.innerHTML = Autolinker.link( container.innerHTML, {stripPrefix: false, email: false, twitter: false} );
+    window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       ||
+              window.webkitRequestAnimationFrame ||
+              window.mozRequestAnimationFrame    ||
+              function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
+
+    function hasClass(el, className) {
+      if (el.classList)
+        return el.classList.contains(className)
+      else
+        return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+    }
 
     function addClass(el, className) {
       if (el.classList)
@@ -85,30 +93,79 @@
         el.className=el.className.replace(reg, ' ')
       }
     }
-    function refreshCheck () {
-      var meta_id = document.getElementById('last_id').getAttribute('value');
-      console.log(this.responseText + '=' + meta_id);
-      if (meta_id != this.responseText) {
-        location.reload();
+    function refreshCheck() {
+      var meta_element = document.getElementById('last_id');
+      var meta_id = meta_element.getAttribute('value');
+      var last_id = JSON.parse(this.responseText).id;
+      console.log(last_id + '=' + meta_id);
+      if (meta_id != last_id) {
+        console.warn("Previous statement was false, executing paradox coroutine")
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", updatePosts);
+        xhr.open("GET", "/get_since/" + meta_id);
+        xhr.send();
       }
     }
+    function updatePosts() {
+      var meta_element = document.getElementById('last_id');
+      var parent_container = document.getElementById('primary-body');
+      var announcement = document.getElementById('announcement');
 
-    new Clipboard('.clipboard-anchor', {
+      var response = JSON.parse(this.responseText);
+      meta_element.setAttribute('value', response.last_id);
+
+      for (var x in response.posts) {
+        var post = response.posts[x];
+        var tmp = document.createElement('div');
+        tmp.innerHTML = Autolinker.link(post.html, {stripPrefix: false, email: false, twitter: false});
+        var post_dom = tmp.firstChild;
+        if (announcement) {
+          parent_container.insertBefore(post_dom, announcement.nextSibling);
+        } else {
+          parent_container.insertBefore(post_dom, parent_container.firstChild);
+        }
+      }
+      window.requestAnimFrame(function() {
+        var gems = document.querySelectorAll('.hidden-gem');
+        for (var idx in gems) {
+          removeClass(gems[idx], 'hidden-gem');
+        }
+      });
+      console.log("Paradox coroutine executed successfully, crisis averted");
+    }
+
+    var container = document.getElementById('primary-body');
+    container.innerHTML = Autolinker.link( container.innerHTML, {stripPrefix: false, email: false, twitter: false} );
+
+    var clip = new Clipboard('.clipboard-anchor', {
       text: function(trigger) {
-        addClass(trigger, 'copied-to-clipboard');
-        setTimeout(function() {
-          removeClass(trigger, 'copied-to-clipboard')
-        }, 2000);
         return trigger.getAttribute('data-markdown-text');
       }
+    });
+
+    clip.on('success', function(e) {
+      var trigger = e.trigger;
+      addClass(trigger, 'copied-to-clipboard');
+      setTimeout(function() {
+        removeClass(trigger, 'copied-to-clipboard')
+      }, 2000);
+    });
+
+    clip.on('error', function(e) {
+      console.warn("Failed to copy to clipboard automatically, you need to CTRL+C");
+      var trigger = e.trigger;
+      addClass(trigger, 'copied-to-clipboard-fallback');
+      setTimeout(function() {
+        removeClass(trigger, 'copied-to-clipboard-fallback')
+      }, 2000);
     });
 
     setInterval(function(){
       var xhr = new XMLHttpRequest();
       xhr.addEventListener("load", refreshCheck);
-      xhr.open("GET", "//lurkdis.maxpowa.us/last");
+      xhr.open("GET", "/last");
       xhr.send();
-    }, 10000);
+    }, 3000);
   </script>
 </body>
 </html>
