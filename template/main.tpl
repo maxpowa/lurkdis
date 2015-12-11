@@ -89,7 +89,7 @@
       var meta_id = document.getElementById('last_id').getAttribute('value');
       console.log(this.responseText + '=' + meta_id);
       if (meta_id != this.responseText) {
-        window.reload();
+        location.reload();
       }
     }
 
