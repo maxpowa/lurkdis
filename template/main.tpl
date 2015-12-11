@@ -165,7 +165,7 @@ instead... https://github.com/maxpowa/lurkdis
       xhr.addEventListener("load", refreshCheck);
       xhr.open("GET", "/last");
       xhr.send();
-    }, 3000);
+    }, 30000);
   </script>
 </body>
 </html>
