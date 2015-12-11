@@ -88,7 +88,7 @@
     function refreshCheck () {
       var meta_id = document.getElementById('last_id').getAttribute('value');
       console.log(this.responseText + '=' + meta_id);
-      if (meta_id == this.responseText) {
+      if (meta_id != this.responseText) {
         window.reload();
       }
     }
@@ -106,7 +106,7 @@
     setInterval(function(){
       var xhr = new XMLHttpRequest();
       xhr.addEventListener("load", refreshCheck);
-      xhr.open("GET", "https://lurkdis.maxpowa.us/last");
+      xhr.open("GET", "http://lurkdis.maxpowa.us/last");
       xhr.send();
     }, 10000);
   </script>
