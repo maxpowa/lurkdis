@@ -6,12 +6,11 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta charset="utf-8">
   <title>LurkDis</title>
-  <meta name="description" content="">
-  <meta name="author" content="">
 
   <!-- Mobile Specific Metas
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta id="last_id" value="{{last_id}}">
 
   <!-- FONT
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -30,6 +29,8 @@
 
 </head>
 <body style='color: wheat; background-image: url("/static/bg.png");'>
+
+  <div class="github-ribbon"><a class="github-ribbon-link" href="/feed.atom" title="RSS feed">RSS feed</a></div>
 
   <!-- Primary Page Layout
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -84,6 +85,13 @@
         el.className=el.className.replace(reg, ' ')
       }
     }
+    function refreshCheck () {
+      var meta_id = document.getElementById('last_id').getAttribute('value');
+      console.log(this.responseText + '=' + meta_id);
+      if (meta_id == this.responseText) {
+        window.reload();
+      }
+    }
 
     new Clipboard('.clipboard-anchor', {
       text: function(trigger) {
@@ -94,6 +102,13 @@
         return trigger.getAttribute('data-markdown-text');
       }
     });
+
+    setInterval(function(){
+      var xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", refreshCheck);
+      xhr.open("GET", "https://lurkdis.maxpowa.us/last");
+      xhr.send();
+    }, 10000);
   </script>
 </body>
 </html>
