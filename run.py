@@ -83,6 +83,9 @@ def on_message(message):
 
 @client.event
 def on_ready():
+    threading.Thread(target=get_historic_messages).start()
+
+def get_historic_messages():
     for server in client.servers:
         if server.id != '113745426082955273':
             continue
@@ -91,6 +94,7 @@ def on_ready():
             print(channel.name)
 
         for channel in server.channels:
+            last_before = None
             before = None
             for i in range(100):
                 if not channel.name in channels_to_monitor:
@@ -100,6 +104,8 @@ def on_ready():
                 for message in logs:
                     on_message(message)
                     before = message
+                if last_before == before:
+                    break
 
 @bottle.route('/')
 @bottle.view('template/main')
