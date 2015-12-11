@@ -106,7 +106,7 @@
     setInterval(function(){
       var xhr = new XMLHttpRequest();
       xhr.addEventListener("load", refreshCheck);
-      xhr.open("GET", "http://lurkdis.maxpowa.us/last");
+      xhr.open("GET", "//lurkdis.maxpowa.us/last");
       xhr.send();
     }, 10000);
   </script>
