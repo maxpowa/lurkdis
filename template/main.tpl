@@ -31,7 +31,7 @@ instead... https://github.com/maxpowa/lurkdis
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
-  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="icon" type="image/png" href="/static/favicon.png">
 
 </head>
 <body style='color: wheat; background-image: url("/static/bg.png");'>
