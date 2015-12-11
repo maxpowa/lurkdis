@@ -119,7 +119,6 @@ def server_static(filepath):
     return bottle.static_file(filepath, root=path.dirname(path.realpath('__file__')) + '/static')
 
 def main():
-    bottle.debug(True)
     threading.Thread(target=bottle.run, kwargs=dict(host='localhost', port=8080)).start()
     client.run()
 
