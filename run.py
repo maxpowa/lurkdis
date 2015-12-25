@@ -13,7 +13,7 @@ with open('./credentials') as f:
 
 client.login(creds[0].strip(), creds[1].strip())
 
-channels_to_monitor = ['announcements', 'general-sc-chat', 'sc-alpha-2-0']
+channels_to_monitor = ['announcements', 'general-sc-chat', 'sc-alpha-2-1']
 
 messages = {}
 announcement = False
@@ -96,15 +96,22 @@ def get_historic_messages():
         for channel in server.channels:
             last_before = None
             before = None
-            for i in range(100):
+            # Go wayyyy back in history, this should fetch us the last
+            # 100,000 messages from the channels. This might need to be
+            # increased eventually, but I guess its fine for now.
+            for i in range(1000):
                 if not channel.name in channels_to_monitor:
                     continue
                 print('Fetching #' + channel.name + ' ' + str(i))
                 logs = client.logs_from(channel, 100, before=before)
+
+                iterations = 0
                 for message in logs:
                     on_message(message)
                     before = message
-                if last_before == before:
+                    iterations += 1
+
+                if iterations == 0:
                     break
 
 @bottle.route('/')
