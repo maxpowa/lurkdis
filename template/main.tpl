@@ -50,7 +50,7 @@ instead... https://github.com/maxpowa/lurkdis
   <div class="container" style="margin-top: 3em;">
     <div class="row">
       <h4>LurkDis</h4>
-      <h6>'Cause watching Discord for hours just wasn't good enough - <a href="/feed.atom">RSS feed</a></h6>
+      <h6>I'm hosting this for free. If you found this helpful and you haven't yet bought Star Citizen, please consider using my <a href="https://robertsspaceindustries.com/enlist?referral=STAR-VHBG-Q957">referral code.</a> You'll get 5,000 UEC credits for using it as well :)- <a href="/feed.atom">RSS feed</a></h6>
       <div id="primary-body" class="container primary-body" style="padding-left: 0px; width:100%">
         % if announcement:
           <div id="announcement" class="row post announcement">
