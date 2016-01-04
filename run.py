@@ -94,25 +94,31 @@ def get_historic_messages():
             print(channel.name)
 
         for channel in server.channels:
-            last_before = None
-            before = None
-            # Go wayyyy back in history, this should fetch us the last
-            # 100,000 messages from the channels. This might need to be
-            # increased eventually, but I guess its fine for now.
-            for i in range(1000):
-                if not channel.name in channels_to_monitor:
-                    continue
-                print('Fetching #' + channel.name + ' ' + str(i))
-                logs = client.logs_from(channel, 100, before=before)
+            threading.Thread(target=get_channel_messages, args=[channel]).start()
 
-                iterations = 0
-                for message in logs:
-                    on_message(message)
-                    before = message
-                    iterations += 1
+def get_channel_messages(channel):
+    last_before = None
+    before = None
+    # Go wayyyy back in history, this should fetch us the last
+    # 100,000 messages from the channels. This might need to be
+    # increased eventually, but I guess its fine for now.
+    for i in range(1000):
+        if not channel.name in channels_to_monitor:
+            continue
+        print('Fetching #' + channel.name + ' ' + str(i))
+        try:
+            logs = client.logs_from(channel, 100, before=before)
+        except:
+            break
 
-                if iterations == 0:
-                    break
+        iterations = 0
+        for message in logs:
+            on_message(message)
+            before = message
+            iterations += 1
+
+        if iterations == 0:
+            break
 
 @bottle.route('/')
 @bottle.view('template/main')
