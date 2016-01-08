@@ -38,6 +38,9 @@ def process_message(message):
     for channel in message.channel_mentions:
         message.content = message.content.replace('<#' + channel.id + '>', '#' + channel.name)
 
+    if len(message.content) < 1:
+        return
+
     avatar = message.author.avatar_url()
     if avatar == '':
         avatar = 'https://discordapp.com/assets/0d1a93187d96a05e86444f2fc6210d95.png'
