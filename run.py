@@ -14,10 +14,8 @@ creds = []
 with open('./credentials') as f:
     creds = f.readlines()
 
-if 'DISCORD_USER' in os.environ:
-    creds[0] = os.environ['DISCORD_USER']
-if 'DISCORD_PASS' in os.environ:
-    creds[1] = os.environ['DISCORD_PASS']
+creds[0] = os.getenv('DISCORD_USER', creds[0])
+creds[1] = os.getenv('DISCORD_PASS', creds[1])
 
 client.login(creds[0].strip(), creds[1].strip())
 
