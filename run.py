@@ -3,13 +3,21 @@ import discord
 import bottle
 import threading
 import copy
+import os
 from os import path
 from werkzeug.contrib.atom import AtomFeed
 
 client = discord.Client()
+app = application = bottle.default_app()
 
+creds = []
 with open('./credentials') as f:
     creds = f.readlines()
+
+if 'DISCORD_USER' in os.environ:
+    creds[0] = os.environ['DISCORD_USER']
+if 'DISCORD_PASS' in os.environ:
+    creds[1] = os.environ['DISCORD_PASS']
 
 client.login(creds[0].strip(), creds[1].strip())
 
@@ -178,7 +186,7 @@ def server_static(filepath):
 
 def main():
     threading.Thread(target=bottle.run, kwargs=dict(host='0.0.0.0', port=8080)).start()
-    client.run()
 
 if __name__ == '__main__':
     main()
+client.run()
