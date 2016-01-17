@@ -39,6 +39,8 @@ RUN chown -R www-data:www-data /opt/venv/lurkdis
 RUN chown -R www-data:www-data /var/www/lurkdis
 RUN chmod 755 /var/www
 
+ENV DISCORD_USER="some_user@email.com" DISCORD_PASS="password"
+
 # Expose port 80.
 EXPOSE 80
 
