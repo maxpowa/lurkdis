@@ -1,13 +1,13 @@
-FROM ubuntu:14.04
+FROM python:3.4
 MAINTAINER maxpowa
 
 # Install nginx, uwsgi and pip.
-RUN echo 'deb http://archive.ubuntu.com/ubuntu trusty main universe' > /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get install -y nginx-full uwsgi-plugin-python3 uwsgi python3-pip
+RUN apt-get update && apt-get install -y \
+    nginx \
+    uwsgi-plugin-python3 \
+    uwsgi
 
-# Install virtualenv for python3 to avoid installing python2.7.
-RUN pip3 install virtualenv
+RUN pip install virtualenv
 
 # Set-up app folder.
 RUN mkdir -p /var/www/lurkdis
@@ -26,9 +26,8 @@ RUN rm /etc/nginx/sites-enabled/default
 RUN ln -s /var/www/lurkdis/nginx_lurkdis /etc/nginx/sites-enabled/
 RUN ln -s /var/www/lurkdis/uwsgi_lurkdis.ini /etc/uwsgi/apps-enabled/
 
-# Set-up virtualenv with system Python 3.4
 RUN mkdir /opt/venv
-RUN virtualenv /opt/venv/lurkdis -p python3
+RUN virtualenv /opt/venv/lurkdis
 
 # Add bottle to the virtualenv.
 # TODO Use a pip requirements file in the future.
