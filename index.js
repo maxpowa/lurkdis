@@ -8,7 +8,10 @@ var cli = require('./cli');
 
 var connectionString = "postgres://lurkdis:password@localhost/lurkdis";
 
-var discord = new Discord.Client();
+var discord = new Discord.Client({
+    autoReconnect: true,
+    maxCachedMessages: 5
+});
 
 pg.connect(connectionString, (err, client, done) => {
     client.query('CREATE TABLE IF NOT EXISTS messages (' +
@@ -19,11 +22,11 @@ pg.connect(connectionString, (err, client, done) => {
                  '  avatar text,' +
                  '  channel text NOT NULL,' +
                  '  channelid varchar(64) NOT NULL,' +
-                 '  attachments json NOT NULL,' +
+                 '  attachments text NOT NULL,' +
                  '  timestamp timestamp NOT NULL,' +
                  '  PRIMARY KEY (id)' +
-                 ')'
-    , (err, result) => {
+                 ')',
+    (err, result) => {
         done();
     });
 });
@@ -34,28 +37,34 @@ function log(message) {
     if (!roles.some(v => v.hoist)) return;
 
     pg.connect(connectionString, (err, client, done) => {
-        if (!!err) return;
+        if (!!err) {
+            console.error(err);
+            return;
+        }
         client.query({
             text: 'INSERT INTO messages (id, content, avatar, author, authorid, channel, channelid, attachments, timestamp) ' +
                   'VALUES ($1, $2, $3, $4, $5, $6, $7, $8, to_timestamp($9)) ON CONFLICT (id) DO UPDATE SET content = $2',
             name: 'upsert-message',
             values: [
-                message.id, 
-                message.cleanContent, 
-                message.author.avatar, 
-                message.author.name, 
-                message.author.id, 
+                message.id,
+                message.cleanContent,
+                message.author.avatar,
+                message.author.name,
+                message.author.id,
                 message.channel.name,
                 message.channel.id,
-                message.attachments, 
+                message.attachments,
                 message.timestamp / 1000
             ]
         }, (err, result) => {
-            if (!!err) return;
+            if (!!err) {
+                console.error(err);
+                return;
+            }
             done();
         });
     });
-    console.log(message.timestamp, message.author.name, message.author.id, message.id, message.cleanContent, message.attachments);
+    console.log(message.timestamp, message.author.name, message.author.id, message.id, message.cleanContent, JSON.stringify(message.attachments));
 }
 
 discord.on('message', log);
@@ -63,7 +72,7 @@ discord.on('messageUpdated', (old, updated) =>{
     log(updated);
 });
 
-let fetch_history = (channel, before, iter) =>{
+discord.fetch_history = (channel, before, iter) =>{
     // Normally an ID. Hoorah loose typing
     before = before || false;
     iter = iter || 0;
@@ -76,11 +85,9 @@ let fetch_history = (channel, before, iter) =>{
             before = messages[i];
             log(before);
         }
-        if (messages.length >= 1) fetch_history(channel, before, iter);
+        if (messages.length >= 1) discord.fetch_history(channel, before, iter);
     });
-}
-
-discord.fetch_history = fetch_history;
+};
 
 discord.on('ready', () => {
     console.log('Ready.');
