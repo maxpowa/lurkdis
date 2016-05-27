@@ -69,11 +69,11 @@ const log_message = (message) => {
                 message.timestamp / 1000
             ]
         }, (err, result) => {
+            done();
             if (!!err) {
                 console.error(err);
                 return;
             }
-            done();
         });
     });
     console.log(message.timestamp, message.author.name, message.author.id, message.id, message.cleanContent, JSON.stringify(message.attachments));
