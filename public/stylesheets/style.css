@@ -96,6 +96,10 @@ a.clip {
     vertical-align: middle;
 }
 
+.content.inner > .body > p:first-child {
+    margin-top: 0;
+}
+
 .content.inner {
     height: calc(100% - 10px);
     width: calc(100% - 138px);

@@ -32,6 +32,38 @@ router.get('/', (req, res, next) => {
     });
 });
 
+router.param('id', (req, res, next, id) => {
+    pg.connect(req.app.get('pg-connection'), (err, client, done) => {
+        client.query({
+            text: 'SELECT * FROM messages WHERE id = $1 ORDER BY timestamp DESC LIMIT 30',
+            name: 'select-messages-' + req.id,
+            values: [
+                id
+            ]
+        },
+        (err, result) => {
+            done();
+            if (!!err) {
+                console.log(err);
+                return next(new Error(err));
+            }
+            req.messages = result.rows;
+            next();
+        });
+    });
+});
+
+router.get('/m/:id', (req, res, next) => {
+    let last = null;
+    res.render('index', {
+        title: 'Lurkdis 2.0',
+        messages: req.messages,
+        moment: moment,
+        marked: marked,
+        last: last
+    });
+});
+
 router.param('timestamp', (req, res, next, timestamp) => {
     let isInt = (n) => {
         return n % 1 === 0;
@@ -63,7 +95,6 @@ router.get('/before/:timestamp', (req, res, next) => {
                 console.log(err);
                 return next(new Error(err));
             }
-            let first = result.rows[0];
             let last = result.rows[result.rowCount - 1];
 
             res.render('includes/messages', {
@@ -71,11 +102,9 @@ router.get('/before/:timestamp', (req, res, next) => {
                 messages: result.rows,
                 moment: moment,
                 marked: marked,
-                first: first,
                 last: last
             }, (err, out) => {
                 res.json({
-                    first: first,
                     last: last,
                     after: last.timestamp.getTime(),
                     messages: out

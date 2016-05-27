@@ -1,5 +1,4 @@
 extends layout
-include ./includes/message.jade
 
 block content
   h1.header Lurkdis 2.0
@@ -14,11 +13,13 @@ block content
   .messages.infiniscroll
     include ./includes/messages.jade
   br
-  .footer
-    | Infiniscroll™ loading...
+  unless last === null
+    .footer
+      | Infiniscroll™ loading...
   .toast
     span CTRL+C to copy message
-  script(type='text/javascript')
-    | var last = !{last.timestamp.getTime()};
+  unless last === null
+    script(type='text/javascript')
+      | var last = !{last.timestamp.getTime()};
   script(type='text/javascript', src="/javascripts/infiniscroll.js")
   script(type='text/javascript', src="/javascripts/clipintegration.js")

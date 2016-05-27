@@ -18,6 +18,7 @@
     }
 
     function handle_scroll(e) {
+        if (last === null) return;
         // When we're half a page from the bottom, load next chunk
         if ($(window).scrollTop() + $(window).height() >= $(document).height() - ($(window).height() / 2)) {
             $(window).off('scroll');
@@ -30,7 +31,7 @@
                 last = res.after;
             }).always(function() {
                 $(window).on('scroll', debounce(handle_scroll, 250));
-            })
+            });
         }
     }
 
