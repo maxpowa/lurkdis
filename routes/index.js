@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
-            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
+            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 15',
             name: 'select-messages'
         },
         (err, result) => {
@@ -35,7 +35,7 @@ router.get('/', (req, res, next) => {
 router.param('id', (req, res, next, id) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
-            text: 'SELECT * FROM messages WHERE id = $1 ORDER BY timestamp DESC LIMIT 30',
+            text: 'SELECT * FROM messages WHERE id = $1 ORDER BY timestamp DESC LIMIT 3',
             name: 'select-messages-' + req.id,
             values: [
                 id
@@ -55,12 +55,23 @@ router.param('id', (req, res, next, id) => {
 
 router.get('/m/:id', (req, res, next) => {
     let last = null;
-    res.render('index', {
-        title: 'Lurkdis 2.0',
-        messages: req.messages,
-        moment: moment,
-        marked: marked,
-        last: last
+    res.format({
+        html: () => {
+            res.render('index', {
+                title: 'Lurkdis 2.0',
+                messages: req.messages,
+                moment: moment,
+                marked: marked,
+                last: last
+            });
+        },
+        json: () => {
+            res.json({
+                last: last,
+                after: last.timestamp.getTime(),
+                messages: req.messages
+            });
+        }
     });
 });
 
@@ -83,8 +94,8 @@ router.param('timestamp', (req, res, next, timestamp) => {
 router.get('/before/:timestamp', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
-            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
-            name: 'select-messages-before',
+            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 15',
+            name: 'select-messages-before-' + req.timestamp,
             values: [
                 req.timestamp / 1000
             ]
@@ -94,6 +105,11 @@ router.get('/before/:timestamp', (req, res, next) => {
             if (!!err) {
                 console.log(err);
                 return next(new Error(err));
+            }
+            if (result.rowCount < 1) {
+                return res.status(400).json({
+                    error: 'too few rows returned (probably invalid timestamp)'
+                });
             }
             let last = result.rows[result.rowCount - 1];
 

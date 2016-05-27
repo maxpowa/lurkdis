@@ -4,22 +4,23 @@ block content
   h1.header Lurkdis 2.0
   h3.secondary It's back and better than ever!
   h3.links
-    a(href="https://github.com/maxpowa/lurkdis") github
+    a(href="https://discord.gg/0dOJaNbubQie6CZN", target="_blank") discord
     |  | 
-    a(href="https://robertsspaceindustries.com/enlist?referral=STAR-VHBG-Q957") enlist
+    a(href="https://robertsspaceindustries.com/enlist?referral=STAR-VHBG-Q957", target="_blank") enlist
     |  | 
-    a(href="https://discord.gg/0dOJaNbubQie6CZN") discord
+    a(href="https://github.com/maxpowa/lurkdis", target="_blank") github
 
   .messages.infiniscroll
     include ./includes/messages.jade
   br
+  .toast
+    span CTRL+C to copy message
+
   unless last === null
     .footer
       | Infiniscroll™ loading...
-  .toast
-    span CTRL+C to copy message
-  unless last === null
     script(type='text/javascript')
       | var last = !{last.timestamp.getTime()};
-  script(type='text/javascript', src="/javascripts/infiniscroll.js")
+    script(type='text/javascript', src="/javascripts/infiniscroll.js")
+
   script(type='text/javascript', src="/javascripts/clipintegration.js")
