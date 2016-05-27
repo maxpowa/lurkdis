@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
-            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 15',
+            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
             name: 'select-messages'
         },
         (err, result) => {
@@ -94,7 +94,7 @@ router.param('timestamp', (req, res, next, timestamp) => {
 router.get('/before/:timestamp', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
-            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 15',
+            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
             name: 'select-messages-before-' + req.timestamp,
             values: [
                 req.timestamp / 1000
