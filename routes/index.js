@@ -4,13 +4,14 @@ const express = require('express');
 const pg = require('pg');
 const moment = require('moment');
 const marked = require('marked');
+const shortid = require('shortid');
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
             text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
-            name: 'select-messages'
+            name: 'select-messages-' + shortid.generate()
         },
         (err, result) => {
             done();
@@ -36,7 +37,7 @@ router.param('id', (req, res, next, id) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
             text: 'SELECT * FROM messages WHERE id = $1 ORDER BY timestamp DESC LIMIT 3',
-            name: 'select-messages-' + req.id,
+            name: 'select-messages-' + req.id + '-' + shortid.generate(),
             values: [
                 id
             ]
@@ -95,7 +96,7 @@ router.get('/before/:timestamp', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
             text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
-            name: 'select-messages-before-' + req.timestamp,
+            name: 'select-messages-before-' + req.timestamp + '-' + shortid.generate(),
             values: [
                 req.timestamp / 1000
             ]

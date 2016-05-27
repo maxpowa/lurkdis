@@ -24,6 +24,6 @@
     "pg": "^4.5.5",
     "pretty-ms": "^2.1.0",
     "serve-favicon": "~2.3.0",
-    "sql-template-strings": "^2.0.2"
+    "shortid": "^2.2.6"
   }
 }
