@@ -2,69 +2,84 @@
 
 const express = require('express');
 const pg = require('pg');
-const Autolinker = require('autolinker');
 const moment = require('moment');
+const marked = require('marked');
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    let limit = 30;
-    if (req.query.limit && !isNaN(req.query.limit)) {
-        limit = parseInt(req.query.limit, 10);
-        if (limit >= 100) limit = 100;
-        if (limit <= 10) limit = 10;
-    }
-    let before = false;
-    if (req.query.before && !isNaN(req.query.before)) {
-        before = parseInt(req.query.before, 10);
-    }
-
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
-        let query = {
-            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT $1',
-            name: 'select-messages',
-            values: [
-                limit
-            ]
-        };
-        if (before) {
-            query = {
-                text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT $2',
-                name: 'select-messages-before',
-                values: [
-                    before / 1000,
-                    limit
-                ]
-            };
-        }
-        client.query(query,
+        client.query({
+            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
+            name: 'select-messages'
+        },
         (err, result) => {
             done();
+            if (!!err) {
+                console.log(err);
+                return next(new Error(err));
+            }
             let first = result.rows[0];
-            let last = result.rows[result.rowCount-1];
-            res.format({
-                text: () => {
-                    // Plaintext formatted
-                },
-                html: () => {
-                    res.render('index', {
-                        messages: result.rows,
-                        autolinker: new Autolinker({
-                            newWindow: true,
-                            stripPrefix: true,
-                            truncate: {
-                                length: 48,
-                                location: 'smart'
-                            },
-                            twitter: false
-                        }),
-                        moment: moment,
-                        first: first,
-                        last: last
-                    });
-                },
-                json: () => {
-                    res.json(result.rows);
-                }
+            let last = result.rows[result.rowCount - 1];
+            res.render('index', {
+                title: 'Lurkdis 2.0',
+                messages: result.rows,
+                moment: moment,
+                marked: marked,
+                first: first,
+                last: last
+            });
+        });
+    });
+});
+
+router.param('timestamp', (req, res, next, timestamp) => {
+    let isInt = (n) => {
+        return n % 1 === 0;
+    };
+
+    if (!isNaN(timestamp)) {
+        let val = parseInt(timestamp, 10);
+        if (isInt(val)) {
+            req.timestamp = val;
+            return next();
+        }
+    }
+
+    next(new Error('Invalid timestamp passed!'));
+});
+
+router.get('/before/:timestamp', (req, res, next) => {
+    pg.connect(req.app.get('pg-connection'), (err, client, done) => {
+        client.query({
+            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
+            name: 'select-messages-before',
+            values: [
+                req.timestamp / 1000
+            ]
+        },
+        (err, result) => {
+            done();
+            if (!!err) {
+                console.log(err);
+                return next(new Error(err));
+            }
+            let first = result.rows[0];
+            let last = result.rows[result.rowCount - 1];
+
+            res.render('includes/messages', {
+                title: 'Lurkdis 2.0',
+                messages: result.rows,
+                moment: moment,
+                marked: marked,
+                first: first,
+                last: last
+            }, (err, out) => {
+                res.json({
+                    first: first,
+                    last: last,
+                    after: last.timestamp.getTime(),
+                    messages: out
+                });
             });
         });
     });

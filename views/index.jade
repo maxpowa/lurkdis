@@ -1,29 +1,24 @@
 extends layout
-
-mixin message(message)
-  .message
-      .content.author
-        .avatar
-          img(src="https://cdn.discordapp.com/avatars/" + message.authorid + "/" + message.avatar + ".jpg")
-        .name= message.author
-      .content.divider
-      .content.inner
-        .body!= autolinker.link(message.content)
-        .attachments
-          each attachment in JSON.parse(message.attachments)
-            a(href=attachment.proxy_url, data-lightbox)
-              img.attachment(src=attachment.proxy_url)
-        .timestamp= moment(message.timestamp).utc().format('LL LTS [UTC]')
-    
+include ./includes/message.jade
 
 block content
-  h1 Hola
+  h1.header Lurkdis 2.0
+  h3.secondary It's back and better than ever!
+  h3.links
+    a(href="https://github.com/maxpowa/lurkdis") github
+    |  | 
+    a(href="https://robertsspaceindustries.com/enlist?referral=STAR-VHBG-Q957") enlist
+    |  | 
+    a(href="https://discord.gg/0dOJaNbubQie6CZN") discord
+
+  .messages.infiniscroll
+    include ./includes/messages.jade
   br
-  each message in messages
-    +message(message)
-  br
-  .pagination
-    // actually do infinite scroll
-    a(href='./?after=' + first.timestamp.getTime()) < after 2016
-    span -
-    a(href='./?before=' + last.timestamp.getTime()) next page >
+  .footer
+    | Infiniscroll™ loading...
+  .toast
+    span CTRL+C to copy message
+  script(type='text/javascript')
+    | var last = !{last.timestamp.getTime()};
+  script(type='text/javascript', src="/javascripts/infiniscroll.js")
+  script(type='text/javascript', src="/javascripts/clipintegration.js")

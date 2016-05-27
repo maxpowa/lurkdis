@@ -1,0 +1,23 @@
+mixin message(message)
+  .message
+      .content.author
+        .avatar
+          img(src="https://cdn.discordapp.com/avatars/" + message.authorid + "/" + message.avatar + ".jpg")
+        .name= message.author
+      .content.divider
+      .content.inner
+        .body!= marked(message.content)
+        .attachments
+          each attachment in JSON.parse(message.attachments)
+            a(href=attachment.proxy_url, data-lightbox)
+              img.attachment(src=attachment.proxy_url)
+        .details
+          span.channel #!{message.channel}
+          =" | "
+          a.timestamp.permalink(href="https://lurkdis.maxpowa.us/m/"+message.id)= moment(message.timestamp).utc().format('LL LTS [UTC]')
+          =" | "
+          - var md_text="*"+message.author+"*: `"+message.content+"` "+moment(message.timestamp).utc().format('LL LTS [UTC]')+" https://lurkdis.maxpowa.us/m/"+message.id
+          a.clip(data-clip-text=md_text) copy
+
+each message in messages
+  +message(message)

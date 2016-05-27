@@ -122,9 +122,9 @@ discord.on('ready', () => {
                 console.log(`Fetching "${channel.name}" ${iter}`);
                 // Ain't ES6 nice?
                 discord.getChannelLogs(channel, 100, {before: before}, (err, messages) =>{
-                    for (let i = 0; i < messages.length; i++) {
-                        before = messages[i];
-                        log_message(before);
+                    for (let message of messages) {
+                        before = message;
+                        log_message(message);
                     }
                     if (messages.length >= 1) fetch_history(channel, max_iter, before, iter);
                 });
