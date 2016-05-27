@@ -2,7 +2,8 @@ mixin message(message)
   .message
       .content.author
         .avatar
-          img(src="https://cdn.discordapp.com/avatars/" + message.authorid + "/" + message.avatar + ".jpg")
+          if message.avatar
+            img(src="https://cdn.discordapp.com/avatars/" + message.authorid + "/" + message.avatar + ".jpg")
         .name= message.author
       .content.divider
       .content.inner
@@ -14,7 +15,7 @@ mixin message(message)
         .details
           span.channel #!{message.channel}
           =" | "
-          a.timestamp.permalink(href="https://lurkdis.maxpowa.us/m/"+message.id)= moment(message.timestamp).utc().format('LL LTS [UTC]')
+          a.timestamp.permalink(href="/m/"+message.id)= moment(message.timestamp).utc().format('LL LTS [UTC]')
           =" | "
           - var md_text="*"+message.author+"*: `"+message.content+"` "+moment(message.timestamp).utc().format('LL LTS [UTC]')+" https://lurkdis.maxpowa.us/m/"+message.id
           a.clip(data-clip-text=md_text) copy
