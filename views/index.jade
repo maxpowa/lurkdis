@@ -20,7 +20,7 @@ block content
     .footer
       | Infiniscroll™ loading...
     script(type='text/javascript')
-      | var last = !{last.timestamp.getTime()};
+      | var last = !{last.timestamp.unix()};
     script(type='text/javascript', src="/javascripts/infiniscroll.js")
 
   script(type='text/javascript', src="/javascripts/clipintegration.js")

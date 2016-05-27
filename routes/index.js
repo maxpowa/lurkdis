@@ -7,6 +7,15 @@ const marked = require('marked');
 const shortid = require('shortid');
 const router = express.Router();
 
+// Because node-postgres is FUCKING STUPID when working with timestamps!!!
+const TIMESTAMPTZ_OID = 1184;
+const TIMESTAMP_OID = 1114;
+const parseFn = (val) => {
+   return val === null ? null : moment(val);
+};
+pg.types.setTypeParser(TIMESTAMPTZ_OID, parseFn);
+pg.types.setTypeParser(TIMESTAMP_OID, parseFn);
+
 router.get('/', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         client.query({
@@ -69,7 +78,7 @@ router.get('/m/:id', (req, res, next) => {
         json: () => {
             res.json({
                 last: last,
-                after: last.timestamp.getTime(),
+                after: last.timestamp.unix(),
                 messages: req.messages
             });
         }
@@ -98,7 +107,7 @@ router.get('/before/:timestamp', (req, res, next) => {
             text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
             name: 'select-messages-before-' + req.timestamp + '-' + shortid.generate(),
             values: [
-                req.timestamp / 1000
+                req.timestamp
             ]
         },
         (err, result) => {
@@ -123,7 +132,7 @@ router.get('/before/:timestamp', (req, res, next) => {
             }, (err, out) => {
                 res.json({
                     last: last,
-                    after: last.timestamp.getTime(),
+                    after: last.timestamp.unix(),
                     messages: out
                 });
             });
