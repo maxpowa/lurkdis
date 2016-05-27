@@ -11,7 +11,7 @@ const router = express.Router();
 const TIMESTAMPTZ_OID = 1184;
 const TIMESTAMP_OID = 1114;
 const parseFn = (val) => {
-   return val === null ? null : moment(val);
+   return val === null ? null : moment.utc(val);
 };
 pg.types.setTypeParser(TIMESTAMPTZ_OID, parseFn);
 pg.types.setTypeParser(TIMESTAMP_OID, parseFn);
