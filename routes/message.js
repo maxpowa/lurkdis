@@ -16,7 +16,7 @@ const parseFn = (val) => {
 pg.types.setTypeParser(TIMESTAMPTZ_OID, parseFn);
 pg.types.setTypeParser(TIMESTAMP_OID, parseFn);
 
-router.get('/', (req, res, next) => {
+router.param('id', (req, res, next, id) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         if (!!err) {
             done();
@@ -24,8 +24,11 @@ router.get('/', (req, res, next) => {
             return next(new Error(err));
         }
         client.query({
-            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
-            name: 'select-messages-' + shortid.generate()
+            text: 'SELECT * FROM messages WHERE id = $1 ORDER BY timestamp DESC LIMIT 3',
+            name: 'select-messages-' + req.id + '-' + shortid.generate(),
+            values: [
+                id
+            ]
         },
         (err, result) => {
             done();
@@ -33,17 +36,31 @@ router.get('/', (req, res, next) => {
                 console.log(err);
                 return next(new Error(err));
             }
-            let first = result.rows[0];
-            let last = result.rows[result.rowCount - 1];
+            req.messages = result.rows;
+            next();
+        });
+    });
+});
+
+router.get('/:id', (req, res, next) => {
+    let last = null;
+    res.format({
+        html: () => {
             res.render('index', {
                 title: 'Lurkdis 2.0',
-                messages: result.rows,
+                messages: req.messages,
                 moment: moment,
                 marked: marked,
-                first: first,
                 last: last
             });
-        });
+        },
+        json: () => {
+            res.json({
+                last: last,
+                after: last.timestamp.unix(),
+                messages: req.messages
+            });
+        }
     });
 });
 

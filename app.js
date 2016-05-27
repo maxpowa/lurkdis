@@ -15,6 +15,8 @@ const pg = require('pg');
 
 const routes = require('./routes/index');
 const feed = require('./routes/feed');
+const m_route = require('./routes/message');
+const before_route = require('./routes/before');
 
 const connectionString = "postgres://lurkdis:password@localhost/lurkdis";
 
@@ -50,6 +52,7 @@ const log_message = (message) => {
 
     pg.connect(connectionString, (err, client, done) => {
         if (!!err) {
+            done();
             console.error(err);
             return;
         }
@@ -168,6 +171,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
+app.use('/before', before_route);
+app.use('/m', m_route);
 app.use('/feed.atom', feed);
 app.use('/feed', feed);
 

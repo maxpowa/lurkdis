@@ -16,7 +16,23 @@ const parseFn = (val) => {
 pg.types.setTypeParser(TIMESTAMPTZ_OID, parseFn);
 pg.types.setTypeParser(TIMESTAMP_OID, parseFn);
 
-router.get('/', (req, res, next) => {
+router.param('timestamp', (req, res, next, timestamp) => {
+    let isInt = (n) => {
+        return n % 1 === 0;
+    };
+
+    if (!isNaN(timestamp)) {
+        let val = parseInt(timestamp, 10);
+        if (isInt(val)) {
+            req.timestamp = val;
+            return next();
+        }
+    }
+
+    next(new Error('Invalid timestamp passed!'));
+});
+
+router.get('/:timestamp', (req, res, next) => {
     pg.connect(req.app.get('pg-connection'), (err, client, done) => {
         if (!!err) {
             done();
@@ -24,8 +40,11 @@ router.get('/', (req, res, next) => {
             return next(new Error(err));
         }
         client.query({
-            text: 'SELECT * FROM messages ORDER BY timestamp DESC LIMIT 30',
-            name: 'select-messages-' + shortid.generate()
+            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
+            name: 'select-messages-before-' + req.timestamp + '-' + shortid.generate(),
+            values: [
+                req.timestamp
+            ]
         },
         (err, result) => {
             done();
@@ -33,15 +52,25 @@ router.get('/', (req, res, next) => {
                 console.log(err);
                 return next(new Error(err));
             }
-            let first = result.rows[0];
+            if (result.rowCount < 1) {
+                return res.status(400).json({
+                    error: 'too few rows returned (probably invalid timestamp)'
+                });
+            }
             let last = result.rows[result.rowCount - 1];
-            res.render('index', {
+
+            res.render('includes/messages', {
                 title: 'Lurkdis 2.0',
                 messages: result.rows,
                 moment: moment,
                 marked: marked,
-                first: first,
                 last: last
+            }, (err, out) => {
+                res.json({
+                    last: last,
+                    after: last.timestamp.unix(),
+                    messages: out
+                });
             });
         });
     });
