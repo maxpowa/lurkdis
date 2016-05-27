@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src='/javascripts/jquery-2.2.4.min.js')
+    script(src='/javascripts/imagelightbox.min.js')
+  body
+    block content
+    script
+      | $(function() {
+      |     $( 'a[data-lightbox]' ).imageLightbox();
+      | });

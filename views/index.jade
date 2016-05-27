@@ -1,0 +1,29 @@
+extends layout
+
+mixin message(message)
+  .message
+      .content.author
+        .avatar
+          img(src="https://cdn.discordapp.com/avatars/" + message.authorid + "/" + message.avatar + ".jpg")
+        .name= message.author
+      .content.divider
+      .content.inner
+        .body!= autolinker.link(message.content)
+        .attachments
+          each attachment in JSON.parse(message.attachments)
+            a(href=attachment.proxy_url, data-lightbox)
+              img.attachment(src=attachment.proxy_url)
+        .timestamp= moment(message.timestamp).utc().format('LL LTS [UTC]')
+    
+
+block content
+  h1 Hola
+  br
+  each message in messages
+    +message(message)
+  br
+  .pagination
+    // actually do infinite scroll
+    a(href='./?after=' + first.timestamp.getTime()) < after 2016
+    span -
+    a(href='./?before=' + last.timestamp.getTime()) next page >

@@ -1,0 +1,19 @@
+doctype xml
+rss(version='2.0', xmlns:atom='<a href="http://www.w3.org/2005/Atom" rel="nofollow">http://www.w3.org/2005/Atom</a>')
+    channel
+        title Lurkdis 2.0
+        link <a href="https://lurkdis.maxpowa.us" rel="nofollow">https://lurkdis.maxpowa.us</a>
+        atom:link(href='<a href="https://lurkdis.maxpowa.us/feed.atom" rel="nofollow">https://lurkdis.maxpowa.us/feed.atom</a>', rel='self', type='application/rss+xml')
+        description Lurkin' CIG staff members since 2015
+        language en-US
+        if first
+            lastBuildDate= first.timestamp.toUTCString()
+        each message in messages
+            item
+                title
+                    | !{message.author} in # !{message.channel}
+                link <a href="https://lurkdis.maxpowa.us/m/#{message.id}" rel="nofollow">https://lurkdis.maxpowa.us/m/#{message.id}</a>
+                description
+                    | !{message.content}
+                pubDate= message.timestamp.toUTCString()
+                guid(isPermaLink='false') <a href="https://lurkdis.maxpowa.us/m/#{message.id}" rel="nofollow">https://lurkdis.maxpowa.us/m/#{message.id}</a>
