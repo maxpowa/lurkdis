@@ -40,7 +40,7 @@ router.get('/:timestamp', (req, res, next) => {
             return next(new Error(err));
         }
         client.query({
-            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1) ORDER BY timestamp DESC LIMIT 30',
+            text: 'SELECT * FROM messages WHERE (timestamp) < to_timestamp($1)::TIMESTAMP ORDER BY timestamp DESC LIMIT 30',
             name: 'select-messages-before-' + req.timestamp + '-' + shortid.generate(),
             values: [
                 req.timestamp
