@@ -26,14 +26,14 @@ router.get('/', (req, res, next) => {
                 // Something that looks like a fucking tag URI.
                 id: 'tag:lurkdis.maxpowa.us,' + new Date().toISOString() + ':lurkdis',
                 link: 'https://lurkdis.maxpowa.us/',
-                updated: first.timestamp
+                updated: first.timestamp.toDate()
             });
             for (let message of result.rows) {
                 feed.addItem({
                     title: message.author + ' in #' + message.channel,
                     link: 'https://lurkdis.maxpowa.us/m/' + message.id,
                     description: message.content,
-                    date: message.timestamp
+                    date: message.timestamp.toDate()
                 });
             }
             res.header('Content-Type', 'application/rss+xml');
